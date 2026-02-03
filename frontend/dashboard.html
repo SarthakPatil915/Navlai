@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Navlai</title>
+    <link rel="stylesheet" href="css/styles.css?v=2.5">
+    <link rel="stylesheet" href="css/navbar.css?v=2.5">
+    <link rel="stylesheet" href="css/dashboard.css?v=2.5">
+    <link rel="stylesheet" href="css/animations.css?v=2.5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #location-map {
+            height: 300px;
+            width: 100%;
+            border-radius: 10px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="nav-logo">
+                <span class="logo-icon"><img src="./images/Logo.png" alt="logo" class="logo-png"></span>
+                <span class="logo-text">Navlai</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#" class="nav-link" id="navbar-home">Home</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" id="navbar-events">Events</a></li>
+                <li class="nav-item user-profile">
+                    <i class="fa-solid fa-user"></i>
+                    <span id="user-name">User</span>
+                    <button class="logout-btn" id="logout-btn">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Dashboard</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active" data-section="nearby-events">
+                    <i class="fa-solid fa-map-location-dot"></i> Nearby Events
+                </a>
+                <a href="#" class="sidebar-link" data-section="my-events">
+                    <i class="fa-solid fa-bullseye"></i> My Events
+                </a>
+                <a href="#" class="sidebar-link" data-section="create-event">
+                    <i class="fa-solid fa-plus-circle"></i> Create Event
+                </a>
+                <a href="#" class="sidebar-link" data-section="my-enrollments">
+                    <i class="fa-solid fa-clipboard"></i> My Enrollments
+                </a>
+                <a href="#" class="sidebar-link" data-section="profile">
+                    <i class="fa-solid fa-user-circle"></i> Profile
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Nearby Events Section -->
+            <section id="nearby-events" class="content-section active">
+                <h2>Nearby Events</h2>
+                
+                <!-- Division Tabs -->
+                <div class="division-tabs">
+                    <div class="division-tabs-header">
+                        <h3>Select Division:</h3>
+                    </div>
+                    <div class="division-tabs-container" id="division-tabs-container">
+                        <!-- Division tabs will be populated here -->
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filter-district">District:</label>
+                        <select id="filter-district">
+                            <option value="">All Districts</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-taluka">Taluka:</label>
+                        <select id="filter-taluka">
+                            <option value="">All Talukas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-area">Area:</label>
+                        <input type="text" id="filter-area" placeholder="Enter area name" list="area-suggestions">
+                        <datalist id="area-suggestions"></datalist>
+                    </div>
+                    <button class="btn btn-primary" id="apply-filters">Apply Filters</button>
+                </div>
+
+                <div class="map-container">
+                    <div id="google-map"></div>
+                </div>
+
+                <div class="events-list">
+                    <h3>Events in Your Area</h3>
+                    <div id="events-container">
+                        <!-- Events will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Events Section -->
+            <section id="my-events" class="content-section">
+                <h2>My Created Events</h2>
+                <div id="my-events-container">
+                    <!-- User's created events will be displayed here -->
+                </div>
+            </section>
+
+            <!-- Create Event Section -->
+            <section id="create-event" class="content-section">
+                <h2>Create New Event</h2>
+                <form id="create-event-form" class="event-form">
+                    <div class="form-group">
+                        <label for="event-title">Event Title</label>
+                        <input type="text" id="event-title" placeholder="e.g., Tree Plantation Drive" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-type">Event Type</label>
+                        <select id="event-type" required>
+                            <option value="">Select Type</option>
+                            <option value="tree-plantation">Tree Plantation</option>
+                            <option value="workshop">Workshop</option>
+                            <option value="awareness-drive">Awareness Drive</option>
+                            <option value="cleanup">Community Cleanup</option>
+                            <option value="health-camp">Health Camp</option>
+                            <option value="education">Education Program</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-description">Description</label>
+                        <textarea id="event-description" placeholder="Describe your event" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-location">Place (Click to select on map)</label>
+                        <input type="text" id="event-location" placeholder="Click to select location" readonly required>
+                        <div id="location-map" style="height: 300px; margin-top: 10px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-date">Date</label>
+                        <input type="date" id="event-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-time">Time</label>
+                        <input type="time" id="event-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-contact">Contact Details</label>
+                        <input type="tel" id="event-contact" placeholder="Enter contact number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-seats">Max Seats Available</label>
+                        <input type="number" id="event-seats" placeholder="Enter max seats" min="1" required>
+                    </div>
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="event-terms" required>
+                        <label for="event-terms">I agree to all Terms & Conditions</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Event for Approval</button>
+                </form>
+            </section>
+
+            <!-- My Enrollments Section -->
+            <section id="my-enrollments" class="content-section">
+                <h2>My Enrollments</h2>
+                <div id="enrollments-container">
+                    <!-- User's enrollments will be displayed here -->
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="content-section">
+                <h2>My Profile</h2>
+                <div class="profile-card">
+                    <div id="profile-info">
+                        <!-- Profile information will be loaded here -->
+                    </div>
+                    <button class="btn btn-secondary" id="edit-profile-btn">Edit Profile</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Event Detail Modal -->
+    <div class="modal" id="event-modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div id="event-detail">
+                <!-- Event details will be loaded here -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="enroll-btn">Enroll Now</button>
+                <button class="btn btn-secondary" id="view-directions-btn">Get Directions</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrollment Modal -->
+    <div class="modal" id="enrollment-modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Event Enrollment</h2>
+            <form id="enrollment-form">
+                <div class="form-group">
+                    <label for="enroll-name">Name</label>
+                    <input type="text" id="enroll-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="enroll-age">Age</label>
+                    <input type="number" id="enroll-age" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="enroll-location">Location</label>
+                    <input type="text" id="enroll-location" required>
+                </div>
+                <div class="form-group">
+                    <label for="enroll-contact">Contact Number</label>
+                    <input type="tel" id="enroll-contact" required>
+                </div>
+                <div class="form-group">
+                    <label for="enroll-id-proof">ID Proof Upload</label>
+                    <input type="file" id="enroll-id-proof" accept="image/*,application/pdf" required>
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="enroll-confirm" required>
+                    <label for="enroll-confirm">I confirm my enrollment</label>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Enrollment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/utils.js?v=2.6"></script>
+    <script src="js/dashboard.js?v=2.6"></script>
+    <script src="js/location.js?v=2.6"></script>
+</body>
+</html>

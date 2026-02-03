@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Navlai</title>
+    <link rel="stylesheet" href="css/styles.css?v=2.4">
+    <link rel="stylesheet" href="css/navbar.css?v=2.4">
+    <link rel="stylesheet" href="css/admin.css?v=2.4">
+    <link rel="stylesheet" href="css/animations.css?v=2.4">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar admin-navbar">
+        <div class="navbar-container">
+            <div class="nav-logo">
+                <span class="logo-icon">👑</span>
+                <span class="logo-text">Admin Panel</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item admin-profile">
+                    <span id="admin-name">Admin</span>
+                    <button class="logout-btn" id="logout-btn">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Menu</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active" data-section="dashboard">
+                    <i class="fa-solid fa-border-all"></i> Dashboard
+                </a>
+                <a href="#" class="sidebar-link" data-section="pending-events">
+                    <i class="fa-regular fa-hourglass"></i> Pending Events
+                </a>
+                <a href="#" class="sidebar-link" data-section="approved-events">
+                    <i class="fa-solid fa-circle-check"></i> Approved Events
+                </a>
+                <a href="#" class="sidebar-link" data-section="all-events">
+                    <i class="fa-solid fa-list"></i> All Events
+                </a>
+                <a href="#" class="sidebar-link" data-section="users">
+                    <i class="fa-solid fa-users"></i> Users
+                </a>
+                <a href="#" class="sidebar-link" data-section="enrollments">
+                    <i class="fa-solid fa-clipboard-list"></i> Enrollments
+                </a>
+                <a href="#" class="sidebar-link" data-section="reports">
+                    <i class="fa-solid fa-chart-line"></i> Reports
+                </a>
+                <a href="#" class="sidebar-link" data-section="feedback">
+                    <i class="fa-solid fa-message"></i> Feedback
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="admin-section active">
+                <h2>Admin Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Events</h3>
+                        <p class="stat-number" id="total-events">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pending Approval</h3>
+                        <p class="stat-number" id="pending-events-count">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <p class="stat-number" id="total-users-count">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Enrollments</h3>
+                        <p class="stat-number" id="total-enrollments-count">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pending Events Section -->
+            <section id="pending-events" class="admin-section">
+                <h2>Pending Event Approvals</h2>
+                <div id="pending-events-list" class="events-table">
+                    <!-- Pending events will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Approved Events Section -->
+            <section id="approved-events" class="admin-section">
+                <h2>Approved Events</h2>
+                <div id="approved-events-list" class="events-table">
+                    <!-- Approved events will be loaded here -->
+                </div>
+            </section>
+
+            <!-- All Events Section -->
+            <section id="all-events" class="admin-section">
+                <h2>All Events Management</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Event Title</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Seats (Used/Total)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="all-events-table">
+                        <!-- Events will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="admin-section">
+                <h2>User Management</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Location</th>
+                            <th>Joined Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Enrollments Section -->
+            <section id="enrollments" class="admin-section">
+                <h2>Event Enrollments</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>User Name</th>
+                            <th>Age</th>
+                            <th>Contact</th>
+                            <th>Enrollment Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enrollments-table">
+                        <!-- Enrollments will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="admin-section">
+                <h2>Reports & Analytics</h2>
+                <div class="reports-container">
+                    <div class="report-section">
+                        <h3>Events by Type</h3>
+                        <div id="events-by-type-chart"></div>
+                    </div>
+                    <div class="report-section">
+                        <h3>Enrollment Trends</h3>
+                        <div id="enrollment-trends-chart"></div>
+                    </div>
+                    <div class="report-section">
+                        <h3>Top Events</h3>
+                        <div id="top-events-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feedback Section -->
+            <section id="feedback" class="admin-section">
+                <h2>User Feedback & Messages</h2>
+                <div class="feedback-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="new">New</button>
+                    <button class="filter-btn" data-filter="read">Read</button>
+                    <button class="filter-btn" data-filter="responded">Responded</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>Email</th>
+                            <th>Subject</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedback-table">
+                        <!-- Feedback messages will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- Event Review Modal -->
+    <div class="modal" id="event-review-modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Review Event</h2>
+            <div id="review-content">
+                <!-- Event details for review will be loaded here -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="approve-event-btn">Approve Event</button>
+                <button class="btn btn-danger" id="reject-event-btn">Reject Event</button>
+                <textarea id="admin-comment" placeholder="Add comment (optional)" rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal" id="feedback-modal">
+        <div class="modal-content feedback-modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>View Feedback</h2>
+            <div id="feedback-detail" class="feedback-detail">
+                <!-- Feedback details will be loaded here -->
+            </div>
+            <div class="modal-actions feedback-actions">
+                <select id="feedback-status-select" class="form-input">
+                    <option value="">Select Status</option>
+                    <option value="new">New</option>
+                    <option value="read">Read</option>
+                    <option value="responded">Responded</option>
+                </select>
+                <button class="btn btn-primary" id="update-feedback-status-btn">Update Status</button>
+                <button class="btn btn-danger" id="delete-feedback-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js?v=2.6"></script>
+    <script src="js/admin.js?v=2.6"></script>
+</body>
+</html>
