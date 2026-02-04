@@ -24,7 +24,11 @@ const app = express();
 
 // CORS Configuration
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5500', 'http://localhost:5500'],
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://https://navlai.vercel.app/'
+    ],
     credentials: true
 }));
 
@@ -40,9 +44,9 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ==================== MongoDB Connection ==================== //
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/navlai';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/navlai';
 
-mongoose.connect(MONGODB_URI)
+mongoose.connect(process.env.MONGO_URI)
 .then(async () => {
     console.log('✅ MongoDB connected successfully to navlai database');
     
