@@ -7,11 +7,16 @@ const { User, OTPVerification } = require('../models');
 
 // Email Configuration (Update with your credentials)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER || 'your-email@gmail.com',
-        pass: process.env.EMAIL_PASS || 'your-password'
-    }
+  host: process.env.SMTP_HOST,          // e.g., smtp.sendgrid.net
+  port: Number(process.env.SMTP_PORT),  // 587 or 2525
+  secure: process.env.SMTP_PORT == 465, // true if 465
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  },
+  connectionTimeout: 20000,             // 20 seconds timeout
+  greetingTimeout: 20000,               // optional
+  socketTimeout: 20000                  // optional
 });
 
 // Generate OTP
@@ -21,33 +26,51 @@ function generateOTP() {
 
 // Send Email OTP
 const sendEmailOTP = async (req, res) => {
-    try {
-        const { email } = req.body;
-        
-        const otp = generateOTP();
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-        
-        await OTPVerification.create({
-            email,
-            otp,
-            type: 'email',
-            expiresAt
-        });
-        
-        // Send email
-        await transporter.sendMail({
-            to: email,
-            subject: 'Navlai - Email Verification OTP',
-            html: `<p>Your OTP for email verification is: <strong>${otp}</strong></p>
-                   <p>This OTP is valid for 10 minutes.</p>`
-        });
-        
-        res.json({ message: 'OTP sent to email' });
-    } catch (error) {
-        console.error('Error sending OTP:', error);
-        res.status(500).json({ message: 'Failed to send OTP' });
+  try {
+    const { email } = req.body;
+
+    // 1️⃣ Validate input
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
     }
+
+    // 2️⃣ Generate OTP
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+
+    // 3️⃣ Send email first
+    await transporter.sendMail({
+      from: `"Navlai" <${process.env.SMTP_FROM}>`, // e.g., onboarding@yourdomain.com
+      to: email,
+      subject: "Navlai - Email Verification OTP",
+      html: `
+        <p>Your OTP for email verification is: <strong>${otp}</strong></p>
+        <p>This OTP is valid for 10 minutes.</p>
+      `
+    });
+
+    // 4️⃣ Save OTP only if email succeeds
+    await OTPVerification.create({
+      email,
+      otp,
+      type: "email",
+      expiresAt
+    });
+
+    // 5️⃣ Respond success
+    res.json({ message: "OTP sent to email" });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+
+    // Optional: handle known timeout errors separately
+    if (error.code === "ETIMEDOUT") {
+      res.status(504).json({ message: "SMTP connection timed out. Please try again later." });
+    } else {
+      res.status(500).json({ message: "Failed to send OTP" });
+    }
+  }
 };
+
 
 // Send SMS OTP (using Twilio)
 const sendMobileOTP = async (req, res) => {
