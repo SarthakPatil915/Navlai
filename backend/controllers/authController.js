@@ -7,17 +7,18 @@ const { User, OTPVerification } = require('../models');
 
 // Email Configuration (Update with your credentials)
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,          // e.g., smtp.sendgrid.net
-  port: Number(process.env.SMTP_PORT),  // 587 or 2525
-  secure: process.env.SMTP_PORT == 465, // true if 465
+  host: "smtp.gmail.com",
+  port: 465,           // Gmail SSL port
+  secure: true,        // true for 465, false for 587
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   },
-  connectionTimeout: 20000,             // 20 seconds timeout
-  greetingTimeout: 20000,               // optional
-  socketTimeout: 20000                  // optional
+  connectionTimeout: 20000,  // 20s timeout
+  greetingTimeout: 20000,
+  socketTimeout: 20000
 });
+
 
 // Generate OTP
 function generateOTP() {
@@ -36,11 +37,11 @@ const sendEmailOTP = async (req, res) => {
 
     // 2️⃣ Generate OTP
     const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // 3️⃣ Send email first
     await transporter.sendMail({
-      from: `"Navlai" <${process.env.SMTP_FROM}>`, // e.g., onboarding@yourdomain.com
+      from: `"Navlai" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Navlai - Email Verification OTP",
       html: `
@@ -57,12 +58,10 @@ const sendEmailOTP = async (req, res) => {
       expiresAt
     });
 
-    // 5️⃣ Respond success
     res.json({ message: "OTP sent to email" });
   } catch (error) {
     console.error("Error sending OTP:", error);
 
-    // Optional: handle known timeout errors separately
     if (error.code === "ETIMEDOUT") {
       res.status(504).json({ message: "SMTP connection timed out. Please try again later." });
     } else {
