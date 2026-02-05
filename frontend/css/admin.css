@@ -293,6 +293,7 @@
 .status-rejected {
     background: #fee2e2;
     color: #7f1d1d;
+    height: 60px;
 }
 
 .status-active {

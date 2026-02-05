@@ -1,9 +1,10 @@
 // ==================== Utility Functions ==================== //
 
 // API Base URL - centralized configuration
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000/api'
-    : '/api';
+const API_URL = 'https://navlai-1.onrender.com';
+// window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+//     ? 'http://localhost:5000/api'
+//     : '/api';
 
 // ==================== Notification System ==================== //
 
