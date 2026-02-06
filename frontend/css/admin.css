@@ -127,6 +127,10 @@
     font-size: 2rem;
 }
 
+.logo-icon{
+    height: 50px;
+}
+
 /* Stats Grid */
 .stats-grid {
     display: grid;
