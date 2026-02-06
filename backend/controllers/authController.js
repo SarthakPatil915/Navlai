@@ -2,22 +2,14 @@
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+const axios = require('axios');
 const { User, OTPVerification } = require('../models');
 
-// Email Configuration (Update with your credentials)
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,           // Gmail SSL port
-  secure: false,        // true for 465, false for 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  connectionTimeout: 20000,  // 20s timeout
-  greetingTimeout: 20000,
-  socketTimeout: 20000
-});
+// Brevo API Configuration
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+const SENDER_NAME = 'Navlai';
+const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'noreply@navlai.com';
 
 
 // Generate OTP
@@ -25,7 +17,7 @@ function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Send Email OTP
+// Send Email OTP using Brevo API
 const sendEmailOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -35,22 +27,46 @@ const sendEmailOTP = async (req, res) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    // 2️⃣ Generate OTP
+    // 2️⃣ Validate Brevo API key
+    if (!BREVO_API_KEY) {
+      console.error("BREVO_API_KEY is not configured");
+      return res.status(500).json({ message: "Email service not configured" });
+    }
+
+    // 3️⃣ Generate OTP
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // 3️⃣ Send email first
-    await transporter.sendMail({
-      from: `"Navlai" <${process.env.EMAIL_USER}>`,
-      to: email,
+    // 4️⃣ Send email via Brevo API
+    const emailPayload = {
+      to: [{
+        email: email,
+        name: email.split('@')[0]
+      }],
+      sender: {
+        name: SENDER_NAME,
+        email: SENDER_EMAIL
+      },
       subject: "Navlai - Email Verification OTP",
-      html: `
-        <p>Your OTP for email verification is: <strong>${otp}</strong></p>
-        <p>This OTP is valid for 10 minutes.</p>
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Email Verification</h2>
+          <p>Your OTP for email verification is:</p>
+          <h1 style="color: #007bff; text-align: center; font-size: 48px; letter-spacing: 5px;">${otp}</h1>
+          <p style="color: #666;">This OTP is valid for <strong>10 minutes</strong>.</p>
+          <p style="color: #999; font-size: 12px;">If you didn't request this code, please ignore this email.</p>
+        </div>
       `
+    };
+
+    await axios.post(BREVO_API_URL, emailPayload, {
+      headers: {
+        'api-key': BREVO_API_KEY,
+        'Content-Type': 'application/json'
+      }
     });
 
-    // 4️⃣ Save OTP only if email succeeds
+    // 5️⃣ Save OTP only if email succeeds
     await OTPVerification.create({
       email,
       otp,
@@ -60,12 +76,16 @@ const sendEmailOTP = async (req, res) => {
 
     res.json({ message: "OTP sent to email" });
   } catch (error) {
-    console.error("Error sending OTP:", error);
+    console.error("Error sending OTP via Brevo:", error.response?.data || error.message);
 
-    if (error.code === "ETIMEDOUT") {
-      res.status(504).json({ message: "SMTP connection timed out. Please try again later." });
+    if (error.response?.status === 401) {
+      return res.status(500).json({ message: "Email service authentication failed" });
+    } else if (error.response?.status === 400) {
+      return res.status(400).json({ message: "Invalid email address" });
+    } else if (error.code === "ECONNREFUSED" || error.message.includes("ECONNREFUSED")) {
+      return res.status(503).json({ message: "Email service temporarily unavailable" });
     } else {
-      res.status(500).json({ message: "Failed to send OTP" });
+      return res.status(500).json({ message: "Failed to send OTP" });
     }
   }
 };
