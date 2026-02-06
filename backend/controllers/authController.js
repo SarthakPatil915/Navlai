@@ -8,8 +8,8 @@ const { User, OTPVerification } = require('../models');
 // Email Configuration (Update with your credentials)
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465,           // Gmail SSL port
-  secure: true,        // true for 465, false for 587
+  port: 587,           // Gmail SSL port
+  secure: false,        // true for 465, false for 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
